@@ -11,6 +11,7 @@ loaderInDisk:hd.img
 mbrInDisk:hd.img
 	dd if=mbr.bin of=hd.img bs=512  conv=notrunc
 allInDisk:mbrInDisk loaderInDisk
+
 bochs:
 	bochs -q -f bochsrc
 clean:
