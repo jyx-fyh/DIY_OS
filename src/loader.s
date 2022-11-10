@@ -1,6 +1,6 @@
 ;文件说明：loader.s
-%include "boot.inc"
-%include "loader.inc"
+;%include "boot.inc"
+;%include "loader.inc"
 
 SECTION loader vstart=BASE_ADDR              ;定义用户程序头部段
     program_length  dd program_end           ;程序总长度[0x00]

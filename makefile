@@ -1,18 +1,27 @@
-all:mbr.bin loader.bin allInDisk
+BUILD= ./build
+SRC=./src
+INC=./inc
+AS=nasm
+DISK=hd.img
+vpath %.s $(SRC)
+vpath %.inc $(INC)
+vpath %.bin $(BUILD)
+$(BUILD)/loader.bin: ASFLAGS= -p $(INC)/loader.inc -p $(INC)/boot.inc -f bin
+$(BUILD)/mbr.bin: ASFLAGS= -p $(INC)/loader.inc -f bin
 
-mbr.bin:mbr.s
-	nasm -f bin mbr.s -o mbr.bin
-loader.bin:loader.s
-	nasm -f bin loader.s -o loader.bin
-hd.img:
-	bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat ./hd.img
-loaderInDisk:hd.img
-	dd if=loader.bin of=hd.img bs=512 seek=2 conv=notrunc
-mbrInDisk:hd.img
-	dd if=mbr.bin of=hd.img bs=512  conv=notrunc
-allInDisk:mbrInDisk loaderInDisk
+all: hd.img
+
+$(BUILD)/%.bin : %.s
+	$(AS) $(ASFLAGS) $^ -o $@
+
+./$(DISK):$(BUILD)/mbr.bin $(BUILD)/loader.bin
+	bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $@
+	dd if=$(BUILD)/mbr.bin of=$@ bs=512  conv=notrunc
+	dd if=$(BUILD)/loader.bin of=$@ bs=512  seek=2 conv=notrunc
 
 bochs:
+	$(RM) ./*.lock
 	bochs -q -f bochsrc
+
 clean:
-	rm -rf *.bin *.img
+	rm -rf $(BUILD)/*.bin  $(DISK)

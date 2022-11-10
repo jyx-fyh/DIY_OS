@@ -1,4 +1,4 @@
-%include "loader.inc"
+;%include "../inc/loader.inc"
 SECTION mbr align=16 vstart=0x7c00
          ;设置堆栈段和栈指针
          mov ax,0
@@ -67,7 +67,7 @@ SECTION mbr align=16 vstart=0x7c00
  jmpToLoader:
          jmp far [0x04]                  ;转移到用户程序
 
-;-------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
 read_hard_disk_0:                        ;从硬盘读取一个逻辑扇区
                                          ;输入：DI:SI=起始逻辑扇区号
                                          ;      DS:BX=目标缓冲区地址
