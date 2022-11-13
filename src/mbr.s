@@ -18,7 +18,7 @@ SECTION mbr align=16 vstart=0x7c00
          call read_hard_disk_0
 
          ;以下判断整个程序有多大
-         mov dx,[2]                      ;曾经把dx写成了ds，花了二十分钟排错
+         mov dx,[2]
          mov ax,[0]
          mov bx,512                      ;512字节每扇区
          div bx

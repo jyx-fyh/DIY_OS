@@ -34,3 +34,14 @@ RPL2   equ   10B
 RPL3   equ   11B
 TI_GDT equ   000B
 TI_LDT equ   100B
+
+;========页目录地址和页表起始地址===========
+PAGE_DIR_POS    equ  0x00100000            ;目录表起始位置
+PAGE_TABLE_POS  equ  PAGE_DIR_POS + 4096   ;页表起始位置
+;===========页表相关属性===================
+PG_P     equ   1b
+PG_RW_R	 equ  00b
+PG_RW_W	 equ  10b
+PG_US_S	 equ  000b
+PG_US_U	 equ  100b
+

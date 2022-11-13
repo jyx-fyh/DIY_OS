@@ -25,3 +25,12 @@ bochs:
 
 clean:
 	rm -rf $(BUILD)/*.bin  $(DISK)
+
+qemu:
+	qemu-system-i386 \
+	-m 32M \
+	-boot c \
+	-hda ./hd.img
+
+qemug:all
+	qemu-system-x86_64 -m 32M -hda ./hd.img -S -s
