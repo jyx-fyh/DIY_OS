@@ -1,5 +1,7 @@
+;文件说明：loader.s
 ;%include "boot.inc"
 ;%include "loader.inc"
+
 SECTION loader vstart=BASE_ADDR              ;定义用户程序头部段
     program_length  dd program_end           ;程序总长度[0x00]
     ;用户程序入口点
@@ -97,7 +99,7 @@ p_mode_start:
 
 	add esp, 0xc0000000           ;将栈指针同样映射到内核地址
 
-	mov eax, PAGE_DIR_POS         ;把页目录地址赋给cr3
+	mov eax, PAGE_DIR_POS   ;把页目录地址赋给cr3
 	mov cr3, eax
 
 	mov eax, cr0                  ;打开cr0的pg位(第31位)
@@ -114,8 +116,14 @@ p_mode_start:
 	mov byte [gs:328], 'u'     ;视频段段基址已经被更新,用字符v表示virtual addr
 	mov byte [gs:330], 'a'     ;视频段段基址已经被更新,用字符v表示virtual addr
 	mov byte [gs:332], 'l'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	xchg bx,bx
-	jmp $
+
+	mov edi, KERNEL_ADDR
+    mov ecx, KERNEL_SECTOR
+    mov bl,  200
+    call read_hd
+
+    jmp SELECTOR_CODE:KERNEL_ADDR
+
 
 ;=======================================================
 ;页目录将要存放的内存清零,每次清空4bytes
@@ -129,22 +137,22 @@ setup_page:
 
 ;创建页目录项,向页目录项中安装各个页表的物理地址
 .create_PDE:
-	mov eax,PAGE_TABLE_POS
-	add eax,4096*0               ;此时eax为第0个页表的物理位置,等价于add eax,(1<<12)*0
+	mov eax,PAGE_TABLE_POS       ;此时eax为第0个页表的物理位置
 	mov ebx,eax                  ;备用
 
 ;下面在第0和0xc00目录项中安装第0个页表的地址，一个页表可表示4MB内存,
 ;这样虚拟地址中高1GB空间的起始4MB和低3GB空间的起始4MB都指向相同的页表。详见博客分析
 ;这是在为内核映射做准备。
-	or eax, PG_US_U | PG_RW_W | PG_P         ;写入目录项属性,RW,P位和US都为1
+	or  eax, PG_US_U | PG_RW_W | PG_P        ;写入目录项属性,RW,PG位和US都为1
 	mov [PAGE_DIR_POS + 0*4], eax            ;安装第0个目录项,对应虚拟地址0~4MB
 	mov [PAGE_DIR_POS + 768*4], eax          ;安装第768个目录项,对应虚拟地址3GB~3GB+4MB
 
-	sub eax,4096
-	mov dword [PAGE_DIR_POS + 1023*4], eax   ; 使最后一个目录项指向页目录表自己的地址
+	mov eax, PAGE_DIR_POS
+	or  eax, PG_US_U | PG_RW_W | PG_P
+	mov [PAGE_DIR_POS + 1023*4], eax ; 使最后一个目录项指向页目录表自己的地址
 
 ;下面创建页表项(PTE)
-	mov ecx,256				         ;1M低端内存/每页大小4KB=56
+	mov ecx,256				         ;1M低端内存/每页大小4KB=256
 	mov esi,0
 	mov edx,PG_US_U | PG_RW_W | PG_P ;属性为7,US=1,RW=1,P=1;高12~31位的物理页地址为0,所以直接mov
 .create_PTE:
@@ -165,5 +173,86 @@ setup_page:
 	add eax, 4096
 	loop .create_kernel_pde
 	ret
+;========================================================
+;读硬盘
+read_hd:
+    ; 0x1f2 8bit 指定读取或写入的扇区数
+    mov dx, 0x1f2
+    mov al, bl
+    out dx, al
+
+    ; 0x1f3 8bit iba地址的第八位 0-7
+    inc dx
+    mov al, cl
+    out dx, al
+
+    ; 0x1f4 8bit iba地址的中八位 8-15
+    inc dx
+    mov al, ch
+    out dx, al
+
+    ; 0x1f5 8bit iba地址的高八位 16-23
+    inc dx
+    shr ecx, 16
+    mov al, cl
+    out dx, al
+
+    ; 0x1f6 8bit
+    ; 0-3 位iba地址的24-27
+    ; 4 0表示主盘 1表示从盘
+    ; 5、7位固定为1
+    ; 6 0表示CHS模式，1表示LAB模式
+    inc dx
+    shr ecx, 8
+    and cl, 0b1111
+    mov al, 0b1110_0000     ; LBA模式
+    or al, cl
+    out dx, al
+
+    ; 0x1f7 8bit  命令或状态端口
+    inc dx
+    mov al, 0x20
+    out dx, al
+
+    ; 设置loop次数，读多少个扇区要loop多少次
+    mov cl, bl
+.start_read:
+    push cx     ; 保存loop次数，防止被下面的代码修改破坏
+
+    call .wait_hd_prepare
+    call read_hd_data
+
+    pop cx      ; 恢复loop次数
+
+    loop .start_read
+
+.return:
+    ret
+
+; 一直等待，直到硬盘的状态是：不繁忙，数据已准备好
+; 即第7位为0，第3位为1，第0位为0
+.wait_hd_prepare:
+    mov dx, 0x1f7
+
+.check:
+    in al, dx
+    and al, 0b1000_1000
+    cmp al, 0b0000_1000
+    jnz .check
+
+    ret
+
+; 读硬盘，一次读两个字节，读256次，刚好读一个扇区
+read_hd_data:
+    mov dx, 0x1f0
+    mov cx, 256
+
+.read_word:
+    in ax, dx
+    mov [edi], ax
+    add edi, 2
+    loop .read_word
+
+    ret
 ;========================================================
 program_end  equ  $-BASE_ADDR
