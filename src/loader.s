@@ -114,7 +114,6 @@ p_mode_start:
 	mov byte [gs:328], 'u'     ;视频段段基址已经被更新,用字符v表示virtual addr
 	mov byte [gs:330], 'a'     ;视频段段基址已经被更新,用字符v表示virtual addr
 	mov byte [gs:332], 'l'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	xchg bx,bx
 	jmp $
 
 ;=======================================================
