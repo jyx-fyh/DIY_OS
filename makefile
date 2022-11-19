@@ -1,11 +1,11 @@
 BUILD= ./build
 AS=nasm
 DISK=hd.img
-KERNEL=build/guide.o build/main.o build/putchar.o
+KERNEL=build/guide.o  build/print.o build/main.o
 $(BUILD)/loader.bin:ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:   ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:   ASFLAGS= -f elf32 -g
-$(BUILD)/putchar.o: ASFLAGS= -p ./boot/inc/loader.inc -f elf32 -g
+$(BUILD)/print.o:   ASFLAGS= -f elf32 -g
 
 CFLAGS:= -m32 # 32 位的程序
 CFLAGS+= -masm=intel
