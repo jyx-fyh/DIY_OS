@@ -97,7 +97,7 @@ p_mode_start:
 	;将gdt的基址加上0xc0000000使其位于内核镜像所在的高地址
 	add dword [gdt_ptr + 2], 0xc0000000
 
-	add esp, 0xc0000000           ;将栈指针同样映射到内核地址
+	add esp, 0xc0000000     ;将栈指针同样映射到内核地址
 
 	mov eax, PAGE_DIR_POS   ;把页目录地址赋给cr3
 	mov cr3, eax
@@ -109,18 +109,18 @@ p_mode_start:
 	;在开启分页后,用gdt新的地址重新加载
 	lgdt [gdt_ptr]             ; 重新加载
 
-	mov byte [gs:320], 'V'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:322], 'i'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:324], 'r'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:326], 't'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:328], 'u'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:330], 'a'     ;视频段段基址已经被更新,用字符v表示virtual addr
-	mov byte [gs:332], 'l'     ;视频段段基址已经被更新,用字符v表示virtual addr
+	mov byte [gs:320], 'V'
+	mov byte [gs:322], 'i'
+	mov byte [gs:324], 'r'
+	mov byte [gs:326], 't'
+	mov byte [gs:328], 'u'
+	mov byte [gs:330], 'a'
+	mov byte [gs:332], 'l'
 
-	mov edi, KERNEL_ADDR
-    mov ecx, KERNEL_SECTOR
-    mov bl,  200
-    call read_hd
+	mov edi, KERNEL_ADDR       ;edi：读到哪里
+    mov ecx, KERNEL_SECTOR     ;ecx：从哪个扇区开始读
+    mov bl,  200               ;bl ：读多少个扇区
+    call read_hd               ;加载内核
 
     jmp SELECTOR_CODE:KERNEL_ADDR
 

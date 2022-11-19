@@ -3,11 +3,12 @@
 //
 void kernel_main(void) {
     char* video = (char*)0xb8000+480;
-    char* tmp = video;
+    short* tmp = video;
     char str[] = "This is kernel.";
     for(int i=0;i<15;i++)
     {
         *tmp = str[i];
-        tmp += 2;
+        *((char*)tmp+1)=0x2;
+        tmp += 1;
     }
 }

@@ -36,7 +36,7 @@ $(BUILD)/pure_kernel.bin: $(BUILD)/kernel.bin
 	objcopy -O binary $(BUILD)/kernel.bin $@
 
 $(BUILD)/kernel.bin: $(BUILD)/guide.o $(BUILD)/main.o
-	ld -m elf_i386 $^ -o $@ -Ttext 0xc0001500
+	ld  -m elf_i386 $^ -o $@ -Ttext 0x00001500
 
 $(BUILD)/main.o: ./kernel/main.c
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
@@ -57,5 +57,5 @@ qemu:
 	-boot c \
 	-hda ./hd.img
 
-qemug:all
+qemug: hd.img
 	qemu-system-x86_64 -m 32M -hda ./hd.img -S -s
