@@ -1,13 +1,11 @@
 BUILD= ./build
-SRC=./src
-INC=./inc
 AS=nasm
 DISK=hd.img
-vpath %.s $(SRC)
-vpath %.inc $(INC)
-vpath %.bin $(BUILD)
-$(BUILD)/loader.bin: ASFLAGS= -p $(INC)/loader.inc -p $(INC)/boot.inc -f bin
-$(BUILD)/mbr.bin: ASFLAGS= -p $(INC)/loader.inc -f bin
+KERNEL=build/guide.o build/main.o build/putchar.o
+$(BUILD)/loader.bin:ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
+$(BUILD)/mbr.bin:   ASFLAGS= -p ./boot/inc/loader.inc -f bin
+$(BUILD)/guide.o:   ASFLAGS= -f elf32 -g
+$(BUILD)/putchar.o: ASFLAGS= -p ./boot/inc/loader.inc -f elf32 -g
 
 CFLAGS:= -m32 # 32 位的程序
 CFLAGS+= -masm=intel
@@ -21,9 +19,9 @@ CFLAGS:=$(strip $(CFLAGS))
 
 DEBUG:= -g
 
-all: hd.img
+all: $(DISK)
 
-$(BUILD)/%.bin : %.s
+$(BUILD)/%.bin : ./boot/asm/%.s
 	$(AS) $(ASFLAGS) $^ -o $@
 
 ./$(DISK):$(BUILD)/mbr.bin $(BUILD)/loader.bin $(BUILD)/pure_kernel.bin
@@ -35,14 +33,14 @@ $(BUILD)/%.bin : %.s
 $(BUILD)/pure_kernel.bin: $(BUILD)/kernel.bin
 	objcopy -O binary $(BUILD)/kernel.bin $@
 
-$(BUILD)/kernel.bin: $(BUILD)/guide.o $(BUILD)/main.o
+$(BUILD)/kernel.bin: $(KERNEL)
 	ld  -m elf_i386 $^ -o $@ -Ttext 0x00001500
 
-$(BUILD)/main.o: ./kernel/main.c
+$(BUILD)/main.o: kernel/init/main.c
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
 
-$(BUILD)/guide.o: $(SRC)/guide.s
-	nasm -f elf32 -g $< -o $@
+$(BUILD)/%.o: ./kernel/asm/%.s
+	nasm $(ASFLAGS) $< -o $@
 
 bochs:
 	$(RM) ./*.lock
