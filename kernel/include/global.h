@@ -40,11 +40,11 @@ struct gate_desc
 //=================GDT/IDT指针=================
 struct xdt_ptr
 {
-    short   limit;
-    int     base;
+    unsigned short   limit;
+    unsigned int     base;
 }__attribute__((packed));
 //======加载GDT/LDT指针的函数，直接内联===========
-static inline void load_xdt(struct xdt_ptr* p, short limit, int base)
+static inline void load_xdt(struct xdt_ptr* p, unsigned short limit, unsigned int base)
 {
     p->base=base;
     p->limit=limit;

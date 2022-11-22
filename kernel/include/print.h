@@ -20,7 +20,7 @@
 #define FT_YELLOW 14
 #define FT_WHITE  15
 
-void  put_char(char,char);
-void  put_str(char*,char);
+void  put_char(char,unsigned char); //p1:字符; p2:字符属性
+void  put_str(char*,unsigned char); //p1:字符串; p2:字符属性
 
 #endif //OSLEARNING_PRINT_H

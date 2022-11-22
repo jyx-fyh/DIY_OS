@@ -73,8 +73,8 @@ VECTOR 0x2e, ZERO        ;硬盘
 VECTOR 0x2f, ZERO        ;保留
 
 ;;;;;;;;;中断函数地址表;;;;;;;;;;
-global interrupt_handler_table
-interrupt_handler_table:
+global interrupt_entry_table
+interrupt_entry_table:
     dd INTERRUPT_ENTRY_0x00
     dd INTERRUPT_ENTRY_0x01
     dd INTERRUPT_ENTRY_0x02

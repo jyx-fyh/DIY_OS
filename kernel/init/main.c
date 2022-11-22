@@ -10,4 +10,6 @@ void kernel_main(void)
     STI;
     asm volatile("int 0x20");
     while(1);
+
+    return;
 }
