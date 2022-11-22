@@ -1,11 +1,13 @@
 BUILD= ./build
 AS=nasm
 DISK=hd.img
-KERNEL=build/guide.o  build/print.o build/main.o
+KERNEL=build/guide.o  build/print.o build/main.o build/interrupt.o build/idt.o build/port_io.o
 $(BUILD)/loader.bin:ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:   ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:   ASFLAGS= -f elf32 -g
 $(BUILD)/print.o:   ASFLAGS= -f elf32 -g
+$(BUILD)/interrupt.o:   ASFLAGS= -f elf32 -g
+$(BUILD)/port_io.o:   ASFLAGS= -f elf32 -g
 
 CFLAGS:= -m32 # 32 位的程序
 CFLAGS+= -masm=intel
@@ -37,6 +39,9 @@ $(BUILD)/kernel.bin: $(KERNEL)
 	ld  -m elf_i386 $^ -o $@ -Ttext 0x00001500
 
 $(BUILD)/main.o: kernel/init/main.c
+	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
+
+$(BUILD)/%.o: kernel/src/%.c
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@
 
 $(BUILD)/%.o: ./kernel/asm/%.s
