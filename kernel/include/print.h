@@ -19,8 +19,10 @@
 #define FT_GRAY   7
 #define FT_YELLOW 14
 #define FT_WHITE  15
+#define DEFAULT   BG_BLACK+FT_GRAY
 
 void  put_char(char,char);
 void  put_str(char*,char);
+void  put_int(int,char);
 
 #endif //OSLEARNING_PRINT_H

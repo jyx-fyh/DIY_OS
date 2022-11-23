@@ -2,6 +2,9 @@ TI_GDT equ  0
 RPL0  equ   0
 SELECTOR_VIDEO equ (0x0003<<3) + TI_GDT + RPL0
 [bits 32]
+section .data
+buffer times 12 db 0
+sign db 0
 section .text
 ;--------------------------------------------
 ;put_str 通过put_char来打印以0字符结尾的字符串
@@ -32,7 +35,74 @@ put_str:
    pop ecx
    pop ebx
    ret
+;==================================================================
+;参数1：数字  参数2：字符属性
+global put_int
+put_int:
+    mov ebp,esp
+    pushad
 
+    mov eax,[ebp+4]
+    mov ebx,eax
+    mov byte [sign],1
+    mov edi,11
+    mov esi,buffer
+    mov cl,31
+    shr eax,cl
+    cmp eax,1
+    jne  .positive
+
+.negative:
+    mov byte [sign],0
+    not ebx
+    inc ebx
+
+.positive:
+    mov ax,bx
+    mov cl,16
+    shr ebx,cl
+    mov dx,bx
+.loop:
+    mov cx,10
+    call divdw
+    sub edi,1
+    add cl,'0'
+    mov [esi+edi],cl
+    mov cl,16
+    mov bx,dx
+    shl ebx,cl
+    mov bx,ax
+    cmp ebx,0
+    jne .loop
+
+.sign:
+    mov al,[sign]
+    cmp al,0
+    jne .@1
+
+    sub edi,1
+    mov byte [esi+edi],'-'
+.@1:
+    push dword [ebp+8]
+    add  esi,edi
+    push esi
+    call put_str
+
+    add esp,8
+    popad
+    ret
+divdw:
+    push ax
+    mov ax,dx
+    mov dx,0
+    div cx
+    mov bx,ax
+    pop ax
+    div cx
+    mov cx,dx;余数
+    mov dx,bx;高八位的商
+    ;此时ax中存储的就是低八位的商
+    ret
 ;------------------------   put_char   -----------------------------
 ;功能描述:把栈中的1个字符写入光标所在处
 ;-------------------------------------------------------------------

@@ -13,5 +13,7 @@ void kernel_main(void) {
         *((char*)tmp+1)=BG_BLACK+FT_GREEN;
         tmp += 1;
     }
-    put_str("Hello,world.",BG_BLUE+FT_GRAY);
+    put_str("Hello,world.\n",DEFAULT);
+    put_int(101023,DEFAULT);
+    while(1);
 }
