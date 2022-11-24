@@ -5,6 +5,7 @@
 extern put_char
 extern put_str                 ;必须先声明外部函数
 extern interrupt_handler_table ;声明中断处理函数的指针数组
+
 %macro VECTOR 2
 INTERRUPT_ENTRY_%1:        ;中断处理entry
     %2
