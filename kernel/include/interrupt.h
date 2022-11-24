@@ -6,7 +6,7 @@
 #define OSLEARNING_INTERRUPT_H
 #include "./global.h"
 //============================================
-#define IDT_DESC_CNT 0x2f    //IDT项的个数
+#define IDT_DESC_CNT 0X30    //IDT项的个数
 typedef void* intr_handler;  //指向中断处理函数的指针
 //============================================
 void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function);
