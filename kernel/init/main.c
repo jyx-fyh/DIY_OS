@@ -14,6 +14,6 @@ void kernel_main(void) {
         tmp += 1;
     }
     put_str("Hello,world.\n",DEFAULT);
-    put_int(101023,DEFAULT);
+    put_int(10,DEFAULT,HEX);
     while(1);
 }

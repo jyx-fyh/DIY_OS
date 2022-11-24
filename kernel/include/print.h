@@ -21,8 +21,9 @@
 #define FT_WHITE  15
 #define DEFAULT   BG_BLACK+FT_GRAY
 
-void  put_char(char,char);
-void  put_str(char*,char);
-void  put_int(int,char);
-
+enum  radix{HEX=16, DEC=10};
+void  put_char(char,char);    //;参数1：字符    参数2：字符属性
+void  put_str(char*,char);    //;参数1：字符串  参数2：字符属性
+void  put_int(int,char,enum radix); //;参数1：数字    参数2：字符属性 ;参数3：进制
 #endif //OSLEARNING_PRINT_H
+
