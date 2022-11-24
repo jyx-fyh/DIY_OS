@@ -7,9 +7,9 @@
 #include "../include/system.h"
 
 struct xdt_ptr idt_ptr ;
+char*  interrupt_name[IDT_DESC_CNT];
 struct gate_desc idt[IDT_DESC_CNT];                        //idt-中断描述符表
 extern intr_handler interrupt_entry_table[IDT_DESC_CNT];   //引用interrupt.s中的中断处理函数入口数组,注意，这是一个指针数组
-                                                           //中断例程的引导
        intr_handler interrupt_handler_table[IDT_DESC_CNT]; //实际中断处理例程的地址
 void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function) {
     p_desc->offset_L = (unsigned int)function & 0x0000FFFF;       //低16位赋值给offset_L，高位丢弃
@@ -51,8 +51,9 @@ void pic_init() {
 
 void idt_init() {
     put_str("idt_init start\n",BG_BLACK+FT_YELLOW);
-    idt_desc_init();	   //初始化中断描述符表
-    pic_init();		       //初始化8259A
+    idt_desc_init();	         //初始化中断描述符表
+    general_handler_regist();    //默认中断函数注册
+    pic_init();		             //初始化8259A
     load_xdt(&idt_ptr,IDT_DESC_CNT*8-1,idt); //注意，limit=size-1，书中代码有误
     /* 加载idt */
     asm volatile("lidt idt_ptr");
@@ -63,8 +64,67 @@ void general_intr_handler(unsigned char vec_num)
 {
     if(vec_num==0x27 || vec_num==0x2f)
         return;
-    put_str("interrupt ",BG_BLACK+FT_RED);
-/////////////////......////////////////////////////
-    put_str(" occur!",BG_BLACK+FT_RED);
+    put_str("\ninterrupt 0x",BG_BLACK+FT_RED);
+    put_int(vec_num, BG_BLACK+FT_RED,16);
+    put_str(" occur: ",BG_BLACK+FT_RED);
+    put_str(interrupt_name[vec_num],BG_BLACK+FT_RED);
 }
+
+void general_handler_regist()
+{
+    for(int i=0;i<IDT_DESC_CNT;i++)
+    {
+        interrupt_handler_table[i]= general_intr_handler;   //将一般函数的地址安装到中断函数表中
+        interrupt_name[i]="unknown";
+    }
+    interrupt_name[0]    = "Divide Error\n";
+    interrupt_name[1]    = "Debug Exception\n";
+    interrupt_name[2]    = "Interrupt\n";
+    interrupt_name[3]    = "Breakpoint Exception\n";
+    interrupt_name[4]    = "Overflow Exception\n";
+    interrupt_name[5]    = "BOUND Range Exceeded Exception\n";
+    interrupt_name[6]    = "Invalid Opcode Exception\n";
+    interrupt_name[7]    = "Device Not Available Exception\n";
+    interrupt_name[8]    = "Double Fault Exception\n";
+    interrupt_name[9]    = "Coprocessor Segment Overrun\n";
+    interrupt_name[0xa]  = "Invalid TSS Exception\n";
+    interrupt_name[0xb]  = "Segment Not Present\n";
+    interrupt_name[0xc]  = "Stack Fault Exception\n";
+    interrupt_name[0xd]  = "General Protection Exception\n";
+    interrupt_name[0xe]  = "Page-Fault Exception\n";
+    //interrupt_name[15]  第15项是intel保留项，未使用
+    interrupt_name[0x10] = "x87 FPU Floating-Point Error\n";
+    interrupt_name[0x11] = "Alignment Check Exception\n";
+    interrupt_name[0x12] = "Machine-Check Exception\n";
+    interrupt_name[0x13] = "SIMD Floating-Point Exception\n";
+    interrupt_name[0x14] = "Virtualization Exception\n";
+    interrupt_name[0x15] = "Control Protection Exception\n";
+    interrupt_name[0x16] = "reserved interrupt-unknown\n";
+    interrupt_name[0x17] = "reserved interrupt-unknown\n";
+    interrupt_name[0x18] = "reserved interrupt-unknown\n";
+    interrupt_name[0x19] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1a] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1b] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1c] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1d] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1e] = "reserved interrupt-unknown\n";
+    interrupt_name[0x1f] = "reserved interrupt-unknown\n";
+    interrupt_name[0x20] = "Clock interrupt\n";
+    interrupt_name[0x21] = "Keyboard interrupt\n";
+    interrupt_name[0x22] = "Clock interrupt\n";
+    interrupt_name[0x23] = "Cascade\n";
+    interrupt_name[0x24] = "Unknown\n";
+    interrupt_name[0x25] = "Unknown\n";
+    interrupt_name[0x26] = "Unknown\n";
+    interrupt_name[0x27] = "Unknown\n";
+    interrupt_name[0x28] = "RTC\n";
+    interrupt_name[0x29] = "Relocation\n";
+    interrupt_name[0x2a] = "Reserved\n";
+    interrupt_name[0x2b] = "Reserved\n";
+    interrupt_name[0x2c] = "Unknown\n";
+    interrupt_name[0x2d] = "FPU Exception\n";
+    interrupt_name[0x2e] = "Disk interrupt\n";
+    interrupt_name[0x2f] = "Reserved\n";
+}
+
 

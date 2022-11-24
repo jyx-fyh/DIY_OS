@@ -2,17 +2,27 @@
 %define ERROR_CODE nop     ; 若在相关的异常中cpu已经自动压入了错误码,为保持栈中格式统一,这里不做操作.
 %define ZERO push 0        ; 若在相关的异常中cpu没有压入错误码,为了统一栈中格式,就手工压入一个0
 
-tips db "interrupt occur!", 0xa, 0
-
-extern put_str             ;声明外部函数
-
+extern put_char
+extern put_str                 ;必须先声明外部函数
+extern interrupt_handler_table ;声明中断处理函数的指针数组
 %macro VECTOR 2
-INTERRUPT_ENTRY_%1:        ;中断处理条目的定义
-    %2                     ;处理错误码
-    push 0x5               ;黑底红字
-    push tips
-    call put_str
-    add esp, 8             ;外平栈(put_str的俩参数)
+INTERRUPT_ENTRY_%1:        ;中断处理entry
+    %2
+    push ds
+    push es
+    push fs
+    push gs
+    pushad
+
+    push dword %1
+    call [interrupt_handler_table + %1*4]
+    add esp, 4             ;外平栈
+
+    popad
+    pop gs
+    pop fs
+    pop es
+    pop ds
 
     mov al,0x20            ;中断结束命令EOI
     out 0xa0,al            ;向从片发送

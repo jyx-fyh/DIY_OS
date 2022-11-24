@@ -10,6 +10,8 @@
 typedef void* intr_handler;  //指向中断处理函数的指针
 //============================================
 void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function);
+void general_handler_regist();
+void general_intr_handler(unsigned char vec_num);
 void idt_init();
 
 //============================================
