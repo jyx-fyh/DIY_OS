@@ -82,7 +82,7 @@ void general_handler_regist()
     }
     interrupt_name[0]    = "Divide Error\n";
     interrupt_name[1]    = "Debug Exception\n";
-    interrupt_name[2]    = "Interrupt\n";
+    interrupt_name[2]    = "NMI Interrupt\n";
     interrupt_name[3]    = "Breakpoint Exception\n";
     interrupt_name[4]    = "Overflow Exception\n";
     interrupt_name[5]    = "BOUND Range Exceeded Exception\n";
