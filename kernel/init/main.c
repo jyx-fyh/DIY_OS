@@ -9,6 +9,5 @@ void kernel_main(void)
 {
     idt_init();
     STI;
-
     while(1);
 }

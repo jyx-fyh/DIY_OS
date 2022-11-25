@@ -6,6 +6,7 @@ section .data
 buffer times 12 db 0
 sign db 0
 
+
 section .text
 ;--------------------------------------------
 ;put_str 通过put_char来打印以0字符结尾的字符串
@@ -40,7 +41,7 @@ put_str:
 
 
 ;====================put_int===========================================
-;参数1：数字  参数2：字符属性
+;参数1：数字  参数2：字符属性 ;参数3:进制
 global put_int
 put_int:
     push ebp
@@ -87,14 +88,22 @@ put_int:
     cmp ebx,0
     jne .loop
 
+.@1:
+    mov cx,[ebp+16]
+    cmp cx,16
+    jne .sign
+    sub edi,1
+    mov byte [esi+edi],'x'
+    sub edi,1
+    mov byte [esi+edi],'0'
+
 .sign:
     mov al,[sign]
     cmp al,0
-    jne .@1
-
+    jne .@3
     sub edi,1
     mov byte [esi+edi],'-'
-.@1:
+.@3:
     push dword [ebp+12]
     add  esi,edi
     push esi
