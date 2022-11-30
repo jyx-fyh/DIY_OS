@@ -6,9 +6,9 @@
 #include "../include/print.h"
 #include "../include/system.h"
 
-struct xdt_ptr idt_ptr ;
-char*  interrupt_name[IDT_DESC_CNT];
-struct gate_desc idt[IDT_DESC_CNT];                        //idt-中断描述符表
+static struct xdt_ptr idt_ptr ;
+static char*  interrupt_name[IDT_DESC_CNT];
+static struct gate_desc idt[IDT_DESC_CNT];                        //idt-中断描述符表
 extern intr_handler interrupt_entry_table[IDT_DESC_CNT];   //引用interrupt.s中的中断处理函数入口数组,注意，这是一个指针数组
        intr_handler interrupt_handler_table[IDT_DESC_CNT]; //实际中断处理例程的地址
 void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function) {

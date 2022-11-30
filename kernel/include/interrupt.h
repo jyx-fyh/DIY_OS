@@ -20,4 +20,11 @@ void idt_init();
 #define PIC_S_CTRL 0xa0	       // 从片的控制端口是0xa0
 #define PIC_S_DATA 0xa1	       // 从片的数据端口是0xa1
 //=============================================
+#define EFLAGS_IF  (1<<9)      //eflags中的if位
+enum intr_status{INTR_OFF,INTR_ON};
+
+enum intr_status intr_get_status();
+enum intr_status intr_set_status(enum intr_status);
+enum intr_status intr_enable();
+enum intr_status intr_disable();
 #endif //OSLEARNING_INTERRUPT_H
