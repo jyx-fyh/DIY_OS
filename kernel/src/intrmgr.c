@@ -5,12 +5,6 @@
 #include "../include/system.h"
 static int EFLAGS=0;
 
-void get_eflags(int* efgs)
-{
-    asm volatile("pushf; pop EFLAGS"); //获取eflags的值
-    *efgs = EFLAGS;
-}
-
 enum intr_status intr_enable()
 {
     if(INTR_ON==intr_get_status())
@@ -35,7 +29,7 @@ enum intr_status intr_disable()
 
 enum intr_status intr_get_status()
 {
-    get_eflags(EFLAGS);
+    asm volatile("pushf; pop EFLAGS"); //获取eflags的值
     return (EFLAGS_IF & EFLAGS) ? INTR_ON:INTR_OFF;
 }
 

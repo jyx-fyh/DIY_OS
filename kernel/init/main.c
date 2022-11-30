@@ -12,6 +12,5 @@ void kernel_main(void)
     timer_init();
     STI;
     assert(1==2);
-
     while(1);
 }
