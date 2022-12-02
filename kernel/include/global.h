@@ -49,4 +49,8 @@ static inline void load_xdt(struct xdt_ptr* p, unsigned short limit, unsigned in
     p->base=base;
     p->limit=limit;
 }
+//=============================================
+#define NULL  ((void*)0)
+#define true  1
+#define false 0
 #endif //OSLEARNING_GLOBAL_H

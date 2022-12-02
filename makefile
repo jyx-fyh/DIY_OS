@@ -2,7 +2,7 @@ BUILD= ./build
 AS=nasm
 DISK=hd.img
 KERNEL=build/guide.o  build/print.o  build/main.o build/interrupt.o build/idt.o build/port_io.o \
-       build/timer.o  build/intrmgr.o  build/debug.o
+       build/timer.o  build/intrmgr.o  build/debug.o  build/string.o
 $(BUILD)/loader.bin:  ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:     ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:     ASFLAGS= -f elf32 -g
@@ -19,7 +19,7 @@ CFLAGS+= -fno-pic		# 不需要位置无关的代码  position independent code
 CFLAGS+= -fno-pie		# 不需要位置无关的可执行程序 position independent executable
 CFLAGS+= -nostdlib		# 不需要标准库
 CFLAGS+= -fno-stack-protector	# 不需要栈保护
-CFLAGS+= -DNDEBUG      # release模式
+#CFLAGS+= -DNDEBUG      # release模式
 
 DEBUG:= -g
 

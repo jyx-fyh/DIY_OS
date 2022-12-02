@@ -6,11 +6,10 @@
 #include "../include/system.h"
 #include "../include/timer.h"
 #include "../include/debug.h"
+#include "../include/string.h"
 void kernel_main(void)
 {
-    idt_init();
-    timer_init();
-    STI;
-    assert(1==2);
+    char* str = "hello";
+    int len = strlen(NULL);
     while(1);
 }
