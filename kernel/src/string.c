@@ -5,7 +5,7 @@
 #include "../include/debug.h"
 #include "../include/global.h"
 
-void memset(void* dst, unsigned char var, unsigned int size)
+void memset(void* dst, char var, unsigned int size)
 {
     assert(dst != NULL);
     unsigned char* tmp = dst;

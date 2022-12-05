@@ -5,7 +5,7 @@
 #ifndef OSLEARNING_STRING_H
 #define OSLEARNING_STRING_H
 
-void memset(void* dst, unsigned char var, unsigned int size);
+void memset(void* dst, char var, unsigned int size);
 void memcpy(void* dst, void* src, unsigned int size);
 int  memcmp(const void* mem1, const void* mem2, unsigned int size);
 char* strchr(const char * str,char ch);
