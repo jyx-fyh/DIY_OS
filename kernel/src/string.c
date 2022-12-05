@@ -9,10 +9,8 @@ void memset(void* dst, unsigned char var, unsigned int size)
 {
     assert(dst != NULL);
     unsigned char* tmp = dst;
-    while(size > 0) {
+    while((size--) > 0)
         *tmp++ = var;
-        size--;
-    }
 }
 
 void memcpy(void* dst, void* src, unsigned int size)
@@ -46,15 +44,14 @@ int memcmp(const void* mem1, const void* mem2, unsigned int size)
     return 0;
 }
 
-char* strcpy(char* dst, char* src)
+char* strcpy(char* dst, const char* src)
 {
     assert(dst != NULL);
     assert(src != NULL);
     if(dst == src)
         return src;
-    char* tmp = dst;
-    while((*dst++ = *src++) != '\0');
-    return tmp;
+    memcpy(dst,src,strlen(src)+1);
+    return dst;
 }
 
 unsigned int strlen(const char* str)
@@ -69,12 +66,12 @@ int strcmp(const char* dst, const char* src)
 {
     assert(dst != NULL);
     assert(src != NULL);
-    while(*dst != '\0' && dst==src)
+    while(*dst != '\0' && *dst==*src)
     {
         dst++;
         src++;
     }
-    return *dst > *src ? 1 : *dst < *src;
+    return *dst < *src ? -1 : *dst > *src;
 }
 
 char* strchr(const char * str,char ch)
@@ -90,12 +87,14 @@ char* strchr(const char * str,char ch)
 char* strrchr(const char* str,char ch)
 {
     assert(str != NULL);
-    const char* last = str;
-    while(*last && *last != ch)
-        last++;
-    if(*last)
-        return last;
-    return NULL;
+    const char* last_char = NULL;
+    while (*str != 0)
+    {
+        if (*str == ch)
+            last_char = str;
+        str++;
+    }
+    return (char*)last_char;
 }
 
 char* strcat(char* dst, const char* src)
