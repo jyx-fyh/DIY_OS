@@ -21,21 +21,21 @@ struct virtual_addr kernel_vaddr;	     // 此结构是用来给内核分配虚�
 /* 初始化内存池 */
 static void mem_pool_init(uint32_t all_mem) {
     put_str("\nmem_pool_init start...\n",DEFUALT);
-    uint32_t page_table_size = PG_SIZE * 256;	  // 页表大小= 1页的页目录表+第0和第768个页目录项指向同一个页表+
+    uint32_t page_table_size = PG_SIZE * 256;         // 页表大小= 1页的页目录表+第0和第768个页目录项指向同一个页表+
     // 第769~1022个页目录项共指向254个页表,共256个页框
     uint32_t used_mem = page_table_size + 0x100000;	  // 0x100000为低端1M内存
     uint32_t free_mem = all_mem - used_mem;
-    uint16_t all_free_pages = free_mem / PG_SIZE;		  // 1页为4k,不管总内存是不是4k的倍数,
+    uint16_t all_free_pages = free_mem / PG_SIZE;     // 1页为4k,不管总内存是不是4k的倍数,
     // 对于以页为单位的内存分配策略，不足1页的内存不用考虑了。
     uint16_t kernel_free_pages = all_free_pages / 2;
     uint16_t user_free_pages = all_free_pages - kernel_free_pages;
 
     /* 为简化位图操作，余数不处理，坏处是这样做会丢内存。
     好处是不用做内存的越界检查,因为位图表示的内存少于实际物理内存*/
-    uint32_t kbm_length = kernel_free_pages / 8;			  // Kernel BitMap的长度,位图中的一位表示一页,以字节为单位
-    uint32_t ubm_length = user_free_pages / 8;			  // User BitMap的长度.
+    uint32_t kbm_length = kernel_free_pages / 8;      // Kernel BitMap的长度,位图中的一位表示一页,以字节为单位
+    uint32_t ubm_length = user_free_pages / 8;        // User BitMap的长度.
 
-    uint32_t kp_start = used_mem;				  // Kernel Pool start,内核内存池的起始地址
+    uint32_t kp_start = used_mem;         // Kernel Pool start,内核内存池的起始地址
     uint32_t up_start = kp_start + kernel_free_pages * PG_SIZE;	  // User Pool start,用户内存池的起始地址
 
     kernel_pool.phy_addr_start = kp_start;
@@ -104,6 +104,6 @@ void mem_init() {
     uint32_t mem_bytes_total = *((uint32_t*)MEM_SIZE_ADDR);
     put_str("memory size:",DEFUALT);
     put_uint(mem_bytes_total,DEFUALT,HEX);
-    mem_pool_init(mem_bytes_total);	  // 初始化内存池
+    mem_pool_init(mem_bytes_total);
     put_str("\nmem_init done\n",DEFUALT);
 }/* 初始化内存池 */
