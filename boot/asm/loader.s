@@ -9,6 +9,9 @@ SECTION loader vstart=BASE_ADDR              ;定义用户程序头部段
                     dd section.loader.start  ;段地址[0x06]
     realloc_tbl_len dw 0                     ;段重定位表项个数为0
 ;=========================================================
+;检测出的总内存大小,位于0x960处
+    total_mem_bytes dd 0
+;=========================================================
 ;GDT
 ;第0描述符不可用
     GDT_BASE        dd    0x00000000
@@ -36,6 +39,9 @@ SECTION loader vstart=BASE_ADDR              ;定义用户程序头部段
     loader_msg      db    'r',11000010b,'e',11000010b,'a',11000010b,'l',11000010b,'-',11000010b
                     db    'm',11000010b,'o',11000010b,'d',11000010b,'e',11000010b
 ;=======================================================
+ ards_buf times 200 db 0
+ ards_nr dw 0
+;=======================================================
 
 start: ;程序入口
 	mov ax,0             ;转移到loader代码后,如果不想立即进入保护模式
@@ -52,7 +58,30 @@ print:
 	mov cx,18            ;9个字符,占18字节
 	cld
 	rep movsb
+;===============================================================================
+;-----------------  int 15h ah = 0x88 获取内存大小,只能获取64M之内  ----------
+.e801_failed_so_try88:
+   ;int 15后，ax存入的是以kb为单位的内存容量
+   mov  ah, 0x88
+   int  0x15
+   jc .error_hlt
+   and eax,0x0000FFFF
+
+   ;16位乘法，被乘数是ax,积为32位.积的高16位在dx中，积的低16位在ax中
+   mov cx, 0x400     ;0x400等于1024,将ax中的内存容量换为以byte为单位
+   mul cx
+   shl edx, 16	     ;把dx移到高16位
+   or edx, eax	     ;把积的低16位组合到edx,为32位的积
+   add edx,0x100000  ;0x88子功能只会返回1MB以上的内存,故实际内存大小要加上1MB
+
+.mem_get_ok:
+   mov [total_mem_bytes], edx	 ;将内存换为byte单位后存入total_mem_bytes处。
+   jmp prepare
+
+.error_hlt:		      ;出错则挂起
+   hlt
 ;========================================================
+
 ;1.打开A20
 ;2.加载GDT
 ;3.置PE=1
@@ -252,7 +281,6 @@ read_hd_data:
     mov [edi], ax
     add edi, 2
     loop .read_word
-
     ret
 ;========================================================
 program_end  equ  $-BASE_ADDR

@@ -62,15 +62,12 @@ void idt_init() {
 
 void general_intr_handler(unsigned char vec_num)
 {
-    static int time=0;   //用于对比频率变化
     if(vec_num==0x27 || vec_num==0x2f)
         return;
     put_str("\ninterrupt ",BG_BLACK+FT_RED);
     put_int(vec_num, BG_BLACK+FT_RED,HEX);
     put_str(" occur: ",BG_BLACK+FT_RED);
     put_str(interrupt_name[vec_num],BG_BLACK+FT_RED);
-    put_int(time, BG_BLACK+FT_RED,DEC);
-    time++;
 }
 
 void general_handler_regist()

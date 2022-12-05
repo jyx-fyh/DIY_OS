@@ -43,6 +43,7 @@ put_str:
 ;====================put_int===========================================
 ;参数1：数字  参数2：字符属性 ;参数3:进制
 global put_int
+
 put_int:
     push ebp
     mov ebp,esp
@@ -125,7 +126,61 @@ divdw:
     mov dx,bx;高八位的商
     ;此时ax中存储的就是低八位的商
     ret
+;=====put_uint===============================
+global put_uint
+put_uint:
+    push ebp
+    mov ebp,esp
+    pushad
 
+    mov eax,[ebp+8]
+    mov ebx,eax
+    mov edi,11
+    mov esi,buffer
+
+    mov ax,bx
+    mov cl,16
+    shr ebx,cl
+    mov dx,bx
+.loop:
+    mov cx,[ebp+16]
+    call divdw
+    sub edi,1
+    cmp cl,10
+    jb  .dec
+.hex:
+    add cl,'a'-10
+    jmp .@2
+.dec:
+    add cl,'0'
+.@2:
+    mov [esi+edi],cl
+    mov cl,16
+    mov bx,dx
+    shl ebx,cl
+    mov bx,ax
+    cmp ebx,0
+    jne .loop
+
+.@1:
+    mov cx,[ebp+16]
+    cmp cx,16
+    jne .@3
+    sub edi,1
+    mov byte [esi+edi],'x'
+    sub edi,1
+    mov byte [esi+edi],'0'
+
+.@3:
+    push dword [ebp+12]
+    add  esi,edi
+    push esi
+    call put_str
+    add esp,8
+
+    popad
+    pop ebp
+    ret
 ;------------------------   put_char   -----------------------------
 ;功能描述:把栈中的1个字符写入光标所在处
 ;-------------------------------------------------------------------

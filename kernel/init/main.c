@@ -7,9 +7,11 @@
 #include "../include/timer.h"
 #include "../include/debug.h"
 #include "../include/string.h"
+#include "../include/memory.h"
 void kernel_main(void)
 {
-    char* str = "hello";
-    int len = strlen(NULL);
+    idt_init();    // 初始化中断
+    timer_init();  // 初始化PIT
+    mem_init();	  // 初始化内存管理系统
     while(1);
 }
