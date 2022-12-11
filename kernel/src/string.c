@@ -3,7 +3,7 @@
 //
 #include "../include/string.h"
 #include "../include/debug.h"
-#include "../include/global.h"
+#include "../include/type.h"
 
 void memset(void* dst, char var, unsigned int size)
 {

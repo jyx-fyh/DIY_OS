@@ -13,4 +13,7 @@ typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
+#define NULL  ((void*)0)
+#define true  1
+#define false 0
 #endif //OSLEARNING_TYPE_H
