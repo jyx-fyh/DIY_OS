@@ -13,5 +13,8 @@ void kernel_main(void)
     idt_init();    // 初始化中断
     timer_init();  // 初始化PIT
     mem_init();	  // 初始化内存管理系统
+    void* addr = get_kernel_pages(1);
+    put_str("get_kernel_page start vaddr:     ",FT_YELLOW);
+    put_uint((uint32_t)addr,FT_YELLOW,HEX);
     while(1);
 }
