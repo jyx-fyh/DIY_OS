@@ -5,8 +5,6 @@
 #ifndef OSLEARNING_MEMERY_H
 #define OSLEARNING_MEMERY_H
 
-#ifndef __KERNEL_MEMORY_H
-#define __KERNEL_MEMORY_H
 #include "type.h"
 #include "bitmap.h"
 
@@ -22,6 +20,5 @@ struct pool {
 };
 
 void mem_init(void);
-#endif
 
 #endif //OSLEARNING_MEMERY_H
