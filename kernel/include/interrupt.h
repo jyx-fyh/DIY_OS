@@ -5,14 +5,16 @@
 #ifndef OSLEARNING_INTERRUPT_H
 #define OSLEARNING_INTERRUPT_H
 #include "./global.h"
+#include "./type.h"
 //============================================
 #define IDT_DESC_CNT 0x30    //IDT项的个数
 typedef void* intr_handler;  //指向中断处理函数的指针
 //============================================
-void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function);
+void make_idt_desc(struct gate_desc* p_desc, uint8_t DPL, intr_handler function);
 void general_handler_regist();
-void general_intr_handler(unsigned char vec_num);
+static void general_intr_handler(uint8_t vec_num);
 void idt_init();
+void register_handler(uint8_t vector_no, intr_handler function);
 
 //============================================
 #define PIC_M_CTRL 0x20	       // 这里用的可编程中断控制器是8259A,主片的控制端口是0x20

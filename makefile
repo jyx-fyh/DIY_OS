@@ -3,14 +3,15 @@ AS=nasm
 DISK=hd.img
 KERNEL=build/guide.o  build/print.o  build/main.o build/interrupt.o build/idt.o build/port_io.o \
        build/timer.o  build/intrmgr.o  build/debug.o  build/string.o  build/memory.o  build/bitmap.o \
-
+       build/init.o   build/thread.o   build/list.o   build/switch.o
 $(BUILD)/loader.bin:      ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:         ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:         ASFLAGS= -f elf32 -g
 $(BUILD)/print.o:         ASFLAGS= -f elf32 -g
 $(BUILD)/interrupt.o:     ASFLAGS= -f elf32 -g
 $(BUILD)/port_io.o:   	  ASFLAGS= -f elf32 -g
-$(BUILD)/timer.o:         ASFLAGS= -f elf32 -g
+$(BUILD)/switch.o:        ASFLAGS= -f elf32 -g
+
 
 
 CFLAGS:= -m32 # 32 位的程序

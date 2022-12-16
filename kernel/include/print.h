@@ -25,4 +25,5 @@ void  put_char(char,unsigned char); //p1:字符; p2:字符属性
 void  put_str(char*,unsigned char); //p1:字符串; p2:字符属性
 void  put_uint(unsigned int, unsigned char, enum radix);//p1:有符号整数; p2:字符属性; p3:进制
 void  put_int(signed int,unsigned char,enum radix);//p1:有符号整数; p2:字符属性; p3:进制
+void set_cursor(unsigned int cursor_pos);
 #endif //OSLEARNING_PRINT_H

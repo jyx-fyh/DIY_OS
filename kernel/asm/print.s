@@ -6,7 +6,6 @@ section .data
 buffer times 12 db 0
 sign db 0
 
-
 section .text
 ;--------------------------------------------
 ;put_str 通过put_char来打印以0字符结尾的字符串
@@ -185,6 +184,7 @@ put_uint:
 ;功能描述:把栈中的1个字符写入光标所在处
 ;-------------------------------------------------------------------
 global put_char
+global set_cursor
 put_char:
    pushad	              ;备份32位寄存器环境
    mov ax, SELECTOR_VIDEO ;需要保证gs中为正确的视频段选择子,为保险起见,每次打印时都为gs赋值
@@ -229,7 +229,7 @@ put_char:
    inc bx
    mov byte [gs:bx], 0x07     ;黑底白字
    shr bx,1
-   jmp .set_cursor
+   jmp set_cursor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  .put_other:
    shl bx, 1				  ; 光标位置是用2字节表示,将光标值乘2,表示对应显存中的偏移字节
@@ -239,7 +239,7 @@ put_char:
    shr bx, 1				  ; 恢复老的光标值
    inc bx                     ; 下一个光标值
    cmp bx, 2000
-   jl .set_cursor             ; 若光标值小于2000,表示未写到显存的最后,则去设置新的光标值
+   jl set_cursor             ; 若光标值小于2000,表示未写到显存的最后,则去设置新的光标值
                               ; 若超出屏幕字符数大小(2000)则换行处理
  .is_line_feed:               ; 是换行符LF(\n)
  .is_carriage_return:         ; 是回车符CR(\r)
@@ -255,7 +255,7 @@ put_char:
    add bx, 80
    cmp bx, 2000
  .is_line_feed_end:           ; 若是LF(\n),将光标移+80便可。
-   jl .set_cursor
+   jl set_cursor
 
 ;屏幕行范围是0~24,滚屏的原理是将屏幕的1~24行搬运到0~23行,再将第24行用空格填充
  .roll_screen:                ; 若超出屏幕大小，开始滚屏
@@ -274,7 +274,7 @@ put_char:
    loop .cls
    mov bx,1920                ;将光标值重置为1920,最后一行的首字符.
 
- .set_cursor:
+ set_cursor:
 ;将光标设为bx值
 ;;;;;;; 1 先设置高8位 ;;;;;;;;
    mov dx, 0x03d4             ;索引寄存器

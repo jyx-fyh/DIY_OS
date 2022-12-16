@@ -5,12 +5,14 @@
 #include "../include/global.h"
 #include "../include/print.h"
 #include "../include/system.h"
+#include "../include/type.h"
 
 static struct xdt_ptr idt_ptr ;
 static char*  interrupt_name[IDT_DESC_CNT];
 static struct gate_desc idt[IDT_DESC_CNT];                        //idt-中断描述符表
 extern intr_handler interrupt_entry_table[IDT_DESC_CNT];   //引用interrupt.s中的中断处理函数入口数组,注意，这是一个指针数组
        intr_handler interrupt_handler_table[IDT_DESC_CNT]; //实际中断处理例程的地址
+static uint32_t page_fault_vaddr ;
 void make_idt_desc(struct gate_desc* p_desc, unsigned char DPL, intr_handler function) {
     p_desc->offset_L = (unsigned int)function & 0x0000FFFF;       //低16位赋值给offset_L，高位丢弃
     p_desc->offset_H = ((unsigned int)function>>16) & 0x0000FFFF; //低16位赋值给offset_L，高位丢弃
@@ -60,7 +62,7 @@ void idt_init() {
     put_str("idt_init done\n",BG_BLACK+FT_YELLOW);
 }
 
-void general_intr_handler(unsigned char vec_num)
+static void general_intr_handler(unsigned char vec_num)
 {
     if(vec_num==0x27 || vec_num==0x2f)
         return;
@@ -68,6 +70,7 @@ void general_intr_handler(unsigned char vec_num)
     put_int(vec_num, BG_BLACK+FT_RED,HEX);
     put_str(" occur: ",BG_BLACK+FT_RED);
     put_str(interrupt_name[vec_num],BG_BLACK+FT_RED);
+    while(1);
 }
 
 void general_handler_regist()
@@ -127,4 +130,8 @@ void general_handler_regist()
     interrupt_name[0x2f] = "Reserved\n";
 }
 
-
+/* 在中断处理程序数组第vector_no个元素中注册安装中断处理程序function */
+void register_handler(uint8_t vector_no, intr_handler function)
+{
+    interrupt_handler_table[vector_no] = function;
+}

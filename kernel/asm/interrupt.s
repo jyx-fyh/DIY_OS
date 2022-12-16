@@ -15,6 +15,10 @@ INTERRUPT_ENTRY_%1:        ;中断处理entry
     push gs
     pushad
 
+    mov al,0x20            ;中断结束命令EOI
+    out 0xa0,al            ;向从片发送
+    out 0x20,al            ;向主片发送
+
     push dword %1
     call [interrupt_handler_table + %1*4]
     add esp, 4             ;外平栈
@@ -25,9 +29,7 @@ INTERRUPT_ENTRY_%1:        ;中断处理entry
     pop es
     pop ds
 
-    mov al,0x20            ;中断结束命令EOI
-    out 0xa0,al            ;向从片发送
-    out 0x20,al            ;向主片发送
+
 
     add esp,4			   ;跨过error_code,以保持堆栈平衡
     iret				   ;从中断返回,32位下等同指令iretd
