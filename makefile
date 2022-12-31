@@ -3,7 +3,7 @@ AS=nasm
 DISK=hd.img
 KERNEL=build/guide.o  build/print.o  build/main.o build/interrupt.o build/idt.o build/port_io.o \
        build/timer.o  build/intrmgr.o  build/debug.o  build/string.o  build/memory.o  build/bitmap.o \
-       build/init.o   build/thread.o   build/list.o   build/switch.o
+       build/init.o   build/thread.o   build/list.o   build/switch.o  build/console.o build/sync.o
 $(BUILD)/loader.bin:      ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:         ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:         ASFLAGS= -f elf32 -g
@@ -41,7 +41,7 @@ $(BUILD)/pure_kernel.bin: $(BUILD)/kernel.bin
 	objcopy -O binary $(BUILD)/kernel.bin $@
 
 $(BUILD)/kernel.bin: $(KERNEL)
-	ld  -m elf_i386 $^ -o $@ -Ttext 0x00001500
+	ld  -m elf_i386 $^ -o $@ -Ttext 0xc0001500
 
 $(BUILD)/main.o: kernel/init/main.c
 	gcc $(CFLAGS) $(DEBUG) -c $< -o $@

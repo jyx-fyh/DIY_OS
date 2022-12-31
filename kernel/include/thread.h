@@ -90,4 +90,6 @@ struct task_struct* running_thread(void);
 void schedule(void);
 void thread_init(void);
 void switch_to(struct task_struct* cur, struct task_struct* next);
+void thread_unblock(struct task_struct* pthread);
+void thread_block(enum task_status stat);
 #endif //OSLEARNING_THREAD_H

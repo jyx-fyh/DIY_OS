@@ -101,14 +101,12 @@ static void make_main_thread(void) {
 
 /* 实现任务调度 */
 void schedule() {
-
     assert(intr_get_status() == INTR_OFF);
-
     struct task_struct* cur = running_thread();
     if (cur->status == TASK_RUNNING) { // 若此线程只是cpu时间片到了,将其加入到就绪队列尾
         assert(!elem_find(&thread_ready_list, &cur->general_tag));
         list_append(&thread_ready_list, &cur->general_tag);
-        cur->ticks = cur->priority;     // 重新将当前线程的ticks再重置为其priority;
+        cur->ticks = cur->priority;    // 重新将当前线程的ticks再重置为其priority;
         cur->status = TASK_READY;
     } else {
         /* 若此线程需要某事件发生后才能继续上cpu运行,
@@ -132,4 +130,31 @@ void thread_init(void) {
 /* 将当前main函数创建为线程 */
     make_main_thread();
     put_str("thread_init done\n",DEFUALT);
+}
+
+/* 当前线程将自己阻塞,标志其状态为stat. */
+void thread_block(enum task_status stat) {
+/* stat取值为TASK_BLOCKED,TASK_WAITING,TASK_HANGING,也就是只有这三种状态才不会被调度*/
+    assert(((stat == TASK_BLOCKED) || (stat == TASK_WAITING) || (stat == TASK_HANGING)));
+    enum intr_status old_status = intr_disable();
+    struct task_struct* cur_thread = running_thread();
+    cur_thread->status = stat; // 置其状态为stat
+    schedule();		      // 将当前线程换下处理器
+/* 待当前线程被解除阻塞后才继续运行下面的intr_set_status */
+    intr_set_status(old_status);
+}
+
+/* 将线程pthread解除阻塞 */
+void thread_unblock(struct task_struct* pthread) {
+    enum intr_status old_status = intr_disable();
+    assert(((pthread->status == TASK_BLOCKED) || (pthread->status == TASK_WAITING) || (pthread->status == TASK_HANGING)));
+    if (pthread->status != TASK_READY) {
+        assert(!elem_find(&thread_ready_list, &pthread->general_tag));
+        if (elem_find(&thread_ready_list, &pthread->general_tag)) {
+            panic("thread_unblock: blocked thread in ready_list\n",__FILE__,__LINE__,__func__);
+        }
+        list_push(&thread_ready_list, &pthread->general_tag);    // 放到队列的最前面,使其尽快得到调度
+        pthread->status = TASK_READY;
+    }
+    intr_set_status(old_status);
 }

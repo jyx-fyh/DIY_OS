@@ -6,6 +6,7 @@
 #include "../include/timer.h"
 #include "../include/memory.h"
 #include "../include/thread.h"
+#include "../include/console.h"
 
 void init_all()
 {
@@ -14,4 +15,5 @@ void init_all()
     timer_init();  // 初始化PIT
     thread_init(); // 初始化线程相关结构
     mem_init();	   // 初始化内存管理系统
+    console_init();
 }
