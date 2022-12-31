@@ -5,7 +5,6 @@
 extern put_char
 extern put_str                 ;必须先声明外部函数
 extern interrupt_handler_table ;声明中断处理函数的指针数组
-
 %macro VECTOR 2
 INTERRUPT_ENTRY_%1:        ;中断处理entry
     %2
@@ -21,19 +20,20 @@ INTERRUPT_ENTRY_%1:        ;中断处理entry
 
     push dword %1
     call [interrupt_handler_table + %1*4]
-    add esp, 4             ;外平栈
-
-    popad
-    pop gs
-    pop fs
-    pop es
-    pop ds
-
-
-
-    add esp,4			   ;跨过error_code,以保持堆栈平衡
-    iret				   ;从中断返回,32位下等同指令iretd
+    jmp intr_exit
 %endmacro
+
+section .text
+global intr_exit
+intr_exit:
+   add esp, 4			   ; 跳过中断号
+   popad
+   pop gs
+   pop fs
+   pop es
+   pop ds
+   add esp, 4			   ; 跳过error_code
+   iretd
 
 ;;;;;;;;;以下代码利用宏来定义函数;;;;;;;;;;;;;;;
 VECTOR 0x00, ZERO        ;divide by zero

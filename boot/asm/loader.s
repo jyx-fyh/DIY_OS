@@ -26,6 +26,9 @@ SECTION loader vstart=BASE_ADDR              ;定义用户程序头部段
     DESC_VIDEO      dd    0x80000007
                     dd    DESC_VIDEO_HIGH4
 
+reserve:
+    times 80 dq 0  ;预留80个描述符空位
+
     GDT_SIZE        equ   $ - GDT_BASE
     GDT_LIMIT       equ   GDT_SIZE - 1
 ;GDT指针

@@ -10,7 +10,7 @@
 #include "../include/list.h"
 
 #define OSLEARNING_TIMER_H
-#define IRQ0_FREQUENCY	   2000
+#define IRQ0_FREQUENCY	   1000
 #define INPUT_FREQUENCY	   1193180
 #define COUNTER0_VALUE	   (INPUT_FREQUENCY / IRQ0_FREQUENCY)
 #define CONTRER0_PORT	   0x40
@@ -49,10 +49,10 @@ static void intr_timer_handler(void)
     ticks++;	  //从内核第一次处理时间中断后开始至今的滴哒数,内核态和用户态总共的嘀哒数
 
     if (cur_thread->ticks == 0)                     // 若进程时间片用完就开始调度新的进程上cpu
+
         schedule();
     else                                            // 将当前进程的时间片-1
         cur_thread->ticks--;
-
 }
 
 void timer_init()
