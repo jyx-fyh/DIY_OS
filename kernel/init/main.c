@@ -35,13 +35,7 @@ void k_thread_a(void* arg)
     char* para = arg;
     while(1)
     {
-        CLI;
-        put_int(test_var_a,FT_YELLOW,HEX);
-        put_str("\n",DEFUALT);
-        STI;
-        //console_put_str(" v_a:0x",FT_RED);
-        //console_put_int(test_var_a,FT_RED,HEX);
-        //console_put_str("\n",DEFUALT);
+        console_put_int(test_var_a,FT_RED,HEX);
     }
 }
 
@@ -49,14 +43,7 @@ void k_thread_a(void* arg)
 void k_thread_b(void* arg) {
     char* para = arg;
     while(1) {
-        CLI;
-        test_var_b++;
-        put_int(test_var_b,FT_RED,HEX);
-        put_str("\n",DEFUALT);
-        STI;
-        //console_put_str(" v_b:0x",FT_YELLOW);
-        //console_put_int(test_var_b,FT_YELLOW,HEX);
-        //console_put_str("\n",DEFUALT);
+        console_put_int(test_var_b,FT_YELLOW,HEX);
     }
 }
 

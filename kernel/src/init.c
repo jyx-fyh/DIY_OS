@@ -17,6 +17,6 @@ void init_all()
     timer_init();  // 初始化PIT
     thread_init(); // 初始化线程相关结构
     mem_init();	   // 初始化内存管理系统
-    console_init();// 初始化终端输出
+    //console_init();// 初始化终端输出
     tss_init();
 }
