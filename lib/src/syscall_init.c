@@ -24,6 +24,6 @@ void syscall_init(void)
 /* 打印字符串str(未实现文件系统前的版本) */
 uint32_t sys_write(char* str)
 {
-    put_str(str,DEFUALT);
+    console_put_str(str,DEFUALT);
     return strlen(str);
 }

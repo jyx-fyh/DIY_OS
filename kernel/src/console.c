@@ -28,27 +28,34 @@ void console_put_str(char* str, uint8_t clr)
     //console_acquire();
     CLI;
     put_str(str,clr);
-    console_release();
+    STI;
+    //console_release();
 }
 
 void console_put_char(uint8_t char_asci,uint8_t clr)
 {
-    console_acquire();
+    //console_acquire();
+    CLI;
     put_char(char_asci,clr);
-    console_release();
+    STI;
+    //console_release();
 }
 
 
 void console_put_int(uint32_t num,uint8_t clr,uint8_t radix)
 {
-    console_acquire();
+    //console_acquire();
+    CLI;
     put_int(num,clr,radix);
-    console_release();
+    STI;
+    //console_release();
 }
 
 void console_put_uint(uint32_t num,uint8_t clr,uint8_t radix)
 {
-    console_acquire();
+    //console_acquire();
+    CLI;
     put_uint(num,clr,radix);
-    console_release();
+    STI;
+    //console_release();
 }

@@ -4,7 +4,8 @@ DISK=hd.img
 KERNEL=build/guide.o  build/print.o  build/main.o build/interrupt.o build/idt.o build/port_io.o \
        build/timer.o  build/intrmgr.o  build/debug.o   build/string.o  build/memory.o  build/bitmap.o \
        build/init.o   build/thread.o   build/list.o    build/switch.o  build/console.o build/sync.o  \
-       build/tss.o    build/process.o  build/syscall.o build/syscall_init.o
+       build/tss.o    build/process.o  build/syscall.o build/syscall_init.o            build/printf.o \
+       build/vsprintf.o
 $(BUILD)/loader.bin:      ASFLAGS= -p ./boot/inc/loader.inc -p ./boot/inc/boot.inc -f bin
 $(BUILD)/mbr.bin:         ASFLAGS= -p ./boot/inc/loader.inc -f bin
 $(BUILD)/guide.o:         ASFLAGS= -f elf32 -g

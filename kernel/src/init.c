@@ -9,6 +9,7 @@
 #include "../include/console.h"
 #include "../include/system.h"
 #include "../../userprog/include/tss.h"
+#include "../../lib/include/syscall_init.h"
 
 void init_all()
 {
@@ -19,4 +20,5 @@ void init_all()
     mem_init();	   // 初始化内存管理系统
     //console_init();// 初始化终端输出
     tss_init();
+    syscall_init();
 }
