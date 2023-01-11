@@ -4,16 +4,6 @@
 #include "../include/stdarg.h"
 #include "../../kernel/include/string.h"
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
-
-static int skip_atoi(const char **s)
-{
-    int i=0;
-
-    while (is_digit(**s))
-        i = i*10 + *((*s)++) - '0';
-    return i;
-}
-
 #define ZEROPAD	1		/* pad with zero */
 #define SIGN	2		/* unsigned/signed long */
 #define PLUS	4		/* show plus */
@@ -21,19 +11,37 @@ static int skip_atoi(const char **s)
 #define LEFT	16		/* left justified */
 #define SPECIAL	32		/* 0x */
 #define SMALL	64		/* use 'abcdef' instead of 'ABCDEF' */
+#define LONG    128     //if long long
 
-#define do_div(n,base) ({ \
-int __res; \
-__asm__("div %4":"=a" (n),"=d" (__res):"0" (n),"1" (0),"r" (base)); \
-__res; })
+static int skip_atoi(const char **fmtp)
+{
+    int i=0;
+    while (is_digit(**fmtp))
+        i = i*10 + *((*fmtp)++) - '0';
+    return i;
+}
 
-static char * number(char * str, int num, int base, int size, int precision
-        ,int type)
+unsigned int do_div_10(unsigned int* n)
+{
+    unsigned int t = *n % 10;
+    *n = *n / 10;
+    return t;
+}
+unsigned int do_div_16_8(unsigned long long *n, int base)
+{
+    unsigned int t = base==16?28:29;
+    unsigned int low = *n;
+    unsigned int hign= (*n)>>32;
+    unsigned int mod = ((*n)&(base==16?15:7));
+    unsigned long long tmp = (unsigned long long)(1<<t) * hign + low / base;
+    *n = tmp;
+    return mod;
+}
+static char * number(char * str, long long num, int base, int size, int precision,int type)
 {
     char c,sign,tmp[36];
     const char *digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int i;
-
     if (type&SMALL) digits="0123456789abcdefghijklmnopqrstuvwxyz";
     if (type&LEFT) type &= ~ZEROPAD;
     if (base<2 || base>36)
@@ -52,8 +60,34 @@ static char * number(char * str, int num, int base, int size, int precision
     i=0;
     if (num==0)
         tmp[i++]='0';
-    else while (num!=0)
-            tmp[i++]=digits[do_div(num,base)];
+    if(base==16 || base==8)
+    {
+        if(!(type&LONG))
+        {
+            int *p = &num;
+            *(++p) = 0;
+        }
+        while (num!=0)
+            tmp[i++]=digits[do_div_16_8(&num,base)];
+    }
+    if(base==10)
+    {
+        if(!(type&LONG))
+        {
+            while (num != 0)
+                tmp[i++] = digits[do_div_10(&num)];
+        }
+        else
+        {
+            unsigned int low = num;
+            unsigned int hign= num>>32;
+            while(low>0) {
+                tmp[i++] = ((hign % 10) * 6 + low % 10) % 10 + '0';
+                low = 429496729 * (hign % 10) + low / 10 + ((hign % 10) * 6 + low % 10) / 10;
+                hign = hign / 10;
+            }
+        }
+    }
     if (i>precision) precision=i;
     size -= precision;
     if (!(type&(ZEROPAD+LEFT)))
@@ -83,7 +117,6 @@ static char * number(char * str, int num, int base, int size, int precision
 
 int vsprintf(char *buf, const char *fmt, va_list args) {
     int len;
-    int i;
     char * str;
     char *s;
     int *ip;
@@ -95,8 +128,10 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
 				   number of chars for from string */
     int qualifier;		/* 'h', 'l', or 'L' for integer fields */
 
-    for (str=buf ; *fmt ; ++fmt) {
-        if (*fmt != '%') {
+    for (str=buf ; *fmt ; ++fmt)
+    {
+        if (*fmt != '%')
+        {
             *str++ = *fmt;
             continue;
         }
@@ -117,10 +152,13 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
         field_width = -1;
         if (is_digit(*fmt))
             field_width = skip_atoi(&fmt);
-        else if (*fmt == '*') {
+        else if (*fmt == '*')
+        {
+            ++fmt;
             /* it's the next argument */
             field_width = va_arg(args, int);
-            if (field_width < 0) {
+            if (field_width < 0)
+            {
                 field_width = -field_width;
                 flags |= LEFT;
             }
@@ -128,11 +166,14 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
 
         /* get the precision */
         precision = -1;
-        if (*fmt == '.') {
+        if (*fmt == '.')
+        {
             ++fmt;
             if (is_digit(*fmt))
                 precision = skip_atoi(&fmt);
-            else if (*fmt == '*') {
+            else if (*fmt == '*')
+            {
+                ++fmt;
                 /* it's the next argument */
                 precision = va_arg(args, int);
             }
@@ -142,9 +183,21 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
 
         /* get the conversion qualifier */
         qualifier = -1;
-        if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
+        if (*fmt == 'h')
+        {
             qualifier = *fmt;
             ++fmt;
+        }
+        else if(*fmt == 'l')
+        {
+            qualifier = *fmt;
+            fmt++;
+            if(*fmt == 'l')
+            {
+                qualifier = 'm';
+                flags |= LONG;
+                fmt++;
+            }
         }
 
         switch (*fmt) {
@@ -168,15 +221,21 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
                 if (!(flags & LEFT))
                     while (len < field_width--)
                         *str++ = ' ';
-                for (i = 0; i < len; ++i)
+                for (int i = 0; i < len; ++i)
                     *str++ = *s++;
                 while (len < field_width--)
                     *str++ = ' ';
                 break;
 
             case 'o':
-                str = number(str, va_arg(args, unsigned long), 8,
-                field_width, precision, flags);
+                if(qualifier=='h')
+                    str = number(str, va_arg(args, unsigned short), 8, field_width, precision, flags);
+                else if(qualifier=='l')
+                    str = number(str, va_arg(args, unsigned long), 8, field_width, precision, flags);
+                else if(qualifier=='m')
+                    str = number(str, va_arg(args, unsigned long long), 8, field_width, precision, flags);
+                else
+                    str = number(str, va_arg(args, unsigned int), 8, field_width, precision, flags);
                 break;
 
             case 'p':
@@ -184,24 +243,44 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
                     field_width = 8;
                     flags |= ZEROPAD;
                 }
-                str = number(str,
-                             (unsigned long) va_arg(args, void *), 16,
-                field_width, precision, flags);
+                str = number(str,(unsigned long) va_arg(args, void *), 16,field_width, precision, flags);
                 break;
 
             case 'x':
                 flags |= SMALL;
             case 'X':
-                str = number(str, va_arg(args, unsigned long), 16,
-                field_width, precision, flags);
+                if(qualifier=='h')
+                    str = number(str, va_arg(args, unsigned short), 16, field_width, precision, flags);
+                else if(qualifier=='l')
+                    str = number(str, va_arg(args, unsigned long), 16, field_width, precision, flags);
+                else if(qualifier=='m')// %llx
+                    str = number(str, va_arg(args, unsigned long long), 16, field_width, precision, flags);
+                else
+                    str = number(str, va_arg(args, unsigned int), 16, field_width, precision, flags);
                 break;
 
             case 'd':
             case 'i':
                 flags |= SIGN;
+                if(qualifier=='h')
+                    str = number(str, va_arg(args, short), 10, field_width, precision, flags);
+                else if(qualifier=='l')
+                    str = number(str, va_arg(args, long), 10, field_width, precision, flags);
+                else if(qualifier=='m')
+                    str = number(str, va_arg(args, long long), 10, field_width, precision, flags);
+                else
+                    str = number(str, va_arg(args, int), 10, field_width, precision, flags);
+                break;
+
             case 'u':
-                str = number(str, va_arg(args, unsigned long), 10,
-                field_width, precision, flags);
+                if(qualifier=='h')
+                    str = number(str, va_arg(args, unsigned short), 10, field_width, precision, flags);
+                else if(qualifier=='l')
+                    str = number(str, va_arg(args, unsigned long), 10, field_width, precision, flags);
+                else if(qualifier=='m')
+                    str = number(str, va_arg(args, unsigned long long), 10, field_width, precision, flags);
+                else
+                    str = number(str, va_arg(args, unsigned int), 10, field_width, precision, flags);
                 break;
 
             case 'n':
