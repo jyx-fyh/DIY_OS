@@ -6,7 +6,7 @@
 #include "../include/print.h"
 #include "../include/system.h"
 #include "../include/type.h"
-
+extern uint32_t syscall_handler();
 static struct xdt_ptr idt_ptr ;
 static char*  interrupt_name[IDT_DESC_CNT];
 static struct gate_desc idt[IDT_DESC_CNT];                        //idt-中断描述符表
@@ -28,6 +28,7 @@ void idt_desc_init() {
     {
         make_idt_desc(&idt[i],  IDT_DESC_DPL0, interrupt_entry_table[i]);
     }
+    make_idt_desc(&idt[0x80],IDT_DESC_DPL3,syscall_handler);
     put_str("idt is done\n",BG_BLACK+FT_YELLOW);
 }
 
@@ -66,6 +67,7 @@ static void general_intr_handler(unsigned char vec_num)
 {
     if(vec_num==0x27 || vec_num==0x2f)
         return;
+
     put_str("\ninterrupt ",BG_BLACK+FT_RED);
     put_int(vec_num, BG_BLACK+FT_RED,HEX);
     put_str(" occur: ",BG_BLACK+FT_RED);

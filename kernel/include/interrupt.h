@@ -7,7 +7,7 @@
 #include "./global.h"
 #include "./type.h"
 //============================================
-#define IDT_DESC_CNT 0x30    //IDT项的个数
+#define IDT_DESC_CNT 0x81    //IDT项的个数
 typedef void* intr_handler;  //指向中断处理函数的指针
 //============================================
 void make_idt_desc(struct gate_desc* p_desc, uint8_t DPL, intr_handler function);
