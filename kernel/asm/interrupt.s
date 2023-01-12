@@ -159,8 +159,13 @@ syscall_handler:
    push ebx	            ; 系统调用中第1个参数
 
 ;3 调用子功能处理函数
+   push eax
+   mov  ax,0x10
+   mov  ds,ax
+   pop  eax
    call [syscall_table + eax*4]	    ; 编译器会在栈中根据C函数声明匹配正确数量的参数
    add esp, 12                      ; 跨过上面的三个参数
+
 ;4 将call调用后的返回值存入待当前内核栈中eax的位置
    mov [esp + 8*4], eax
    jmp intr_exit                    ; intr_exit返回,恢复上下文
