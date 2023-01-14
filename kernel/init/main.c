@@ -18,7 +18,6 @@ int kernel_main(void)
 {
     init_all();
     process_execute(u_prog_a,"a");
-    BOCHS_DEBUG_MAGIC;
     while(1)
     {
         printf("kernel\n");
@@ -47,10 +46,10 @@ void k_thread_b(void* arg)
 /* 测试用户进程 */
 void u_prog_a(void)
 {
-    while(1){
-        char arr[20]="user_progress\n";
-        int cnt = write(arr);;
-    }
+    char arr[20]="user_progress\n";
+    int cnt = write(arr);;
+
+    while(1);
 }
 
 /* 测试用户进程 */

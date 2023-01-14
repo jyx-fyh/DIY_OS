@@ -36,7 +36,7 @@ uint32_t _syscall2(uint32_t no, uint32_t _arg1, uint32_t _arg2)
    int retval;
    asm volatile
    (
-   "int $0x80"
+   "int 0x80"
    : "=a" (retval)
    : "a" (no), "b" (_arg1), "c" (_arg2)
    : "memory"
@@ -48,7 +48,7 @@ uint32_t _syscall3(uint32_t no, uint32_t _arg1, uint32_t _arg2, uint32_t _arg3)
    int retval;
    asm volatile
    (
-      "int $0x80"
+      "int 0x80"
       : "=a" (retval)
       : "a" (no), "b" (_arg1), "c" (_arg2), "d" (_arg3)
       : "memory"

@@ -80,7 +80,7 @@ void tss_init()
 
     /* 在gdt中添加dpl为3的数据段和代码段描述符 */
     *((struct gdt_desc*)0xc0000938) = make_gdt_desc((uint32_t*)0, 0xfffff, GDT_CODE_ATTR_LOW_DPL3, GDT_ATTR_HIGH);
-    *((struct gdt_desc*)0xc0000940) = make_gdt_desc((uint32_t*)0, 0xfffff, GDT_DATA_ATTR_LOW_DPL3, GDT_ATTR_HIGH);
+    *((struct gdt_desc*)0xc0000940) = make_gdt_desc((uint32_t*)0, 0xbffff, GDT_DATA_ATTR_LOW_DPL3, GDT_ATTR_HIGH);
 
     /* gdt 16位的limit 32位的段基址 */
     load_xdt(&gdt_operand,8 * 7 - 1,0xc0000910);

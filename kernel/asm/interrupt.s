@@ -162,6 +162,8 @@ syscall_handler:
    push eax
    mov  ax,0x10
    mov  ds,ax
+   mov  es,ax
+   mov  fs,ax
    pop  eax
    call [syscall_table + eax*4]	    ; 编译器会在栈中根据C函数声明匹配正确数量的参数
    add esp, 12                      ; 跨过上面的三个参数
