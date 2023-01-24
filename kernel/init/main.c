@@ -17,17 +17,15 @@ int kernel_main() {
     for(int i=100000000;i>0;i--);
     init_all();
     thread_start("k_thread_a", 31, k_thread_a, NULL);
-    thread_start("k_thread_b", 21, k_thread_b, NULL);
-    thread_start("k_thread_c", 11, k_thread_c, NULL);
-    thread_start("k_thread_d", 5, k_thread_d, NULL);
+    thread_start("k_thread_b", 31, k_thread_b, NULL);
+    thread_start("k_thread_c", 31, k_thread_c, NULL);
+    thread_start("k_thread_d", 31, k_thread_d, NULL);
     intr_enable();	// 打开中断,使时钟中断起作用
     while(1)
     {
         console_acquire();
-        //CLI;
-        put_uint((uint32_t)running_thread(),FT_RED,HEX);
+        console_put_uint((uint32_t)running_thread(),FT_RED,HEX);
         console_release();
-        //STI;
     };
     return 0;
 }
@@ -38,9 +36,7 @@ void k_thread_a(void* arg) {
     while(1)
     {
         console_acquire();
-        //CLI;
-        put_uint((uint32_t)running_thread(),FT_YELLOW,HEX);
-        //STI;
+        console_put_uint((uint32_t)running_thread(),FT_YELLOW,HEX);
         console_release();
 
     }
@@ -53,9 +49,7 @@ void k_thread_b(void* arg) {
     while(1)
     {
         console_acquire();
-        //CLI;
-        put_uint((uint32_t)running_thread(),FT_GREEN,HEX);
-        //STI;
+        console_put_uint((uint32_t)running_thread(),FT_GREEN,HEX);
         console_release();
     }
 }
@@ -64,11 +58,8 @@ void k_thread_c(void* arg) {
     while(1)
     {
         console_acquire();
-        //CLI;
-        put_uint((uint32_t)running_thread(),FT_BROWN,HEX);
-        //STI;
+        console_put_uint((uint32_t)running_thread(),FT_BROWN,HEX);
         console_release();
-
     }
 }
 void k_thread_d(void* arg) {
@@ -76,10 +67,7 @@ void k_thread_d(void* arg) {
     while(1)
     {
         console_acquire();
-        //CLI;
-        put_uint((uint32_t)running_thread(),FT_GRAY,HEX);
-        //STI;
+        console_put_uint((uint32_t)running_thread(),FT_GRAY,HEX);
         console_release();
-
     }
 }
